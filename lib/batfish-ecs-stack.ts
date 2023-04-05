@@ -2,10 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
-import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import {HealthCheck} from 'aws-cdk-lib/aws-appmesh';
-import {open} from 'fs';
+
 
 
 export class BatfishEcsStack extends cdk.Stack {
@@ -23,7 +21,7 @@ export class BatfishEcsStack extends cdk.Stack {
     // Create Task Definition with Fargate compatibility
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'BatfishTaskDefinition', {
       memoryLimitMiB: 8192,
-      cpu: 2048
+      cpu: 4096
     });
 
     // Add container to the task definition
@@ -33,7 +31,7 @@ export class BatfishEcsStack extends cdk.Stack {
         {streamPrefix: 'Batfish'}
       ),
       memoryLimitMiB: 4096,
-      cpu: 1024,
+      cpu: 2048,
       environment: {
         BASH_ENV: '/etc/profile'
       },
@@ -67,7 +65,7 @@ export class BatfishEcsStack extends cdk.Stack {
     const fargateService = new ecs.FargateService(this, 'BatfishFargateService', {
       cluster: cluster,
       taskDefinition: taskDefinition,
-      desiredCount: 3,
+      desiredCount: 1,
       assignPublicIp: false,
       vpcSubnets: vpc,
       securityGroups: [fargateServiceSecurityGroup],
@@ -88,7 +86,7 @@ export class BatfishEcsStack extends cdk.Stack {
       protocol: elbv2.ApplicationProtocol.HTTP,
       port: 9996,
       vpc: vpc,
-      stickinessCookieDuration: cdk.Duration.seconds(60),
+      stickinessCookieDuration: cdk.Duration.seconds(120),
       healthCheck: {
         path: '/',
         port: "8888",
@@ -98,6 +96,9 @@ export class BatfishEcsStack extends cdk.Stack {
       }
     });
 
+    // Group Level Stickiness
+    const stickinessDuration = cdk.Duration.seconds(120);
+
     loadBalancer.addListener('Listener9996', {
       port: 9996,
       protocol: elbv2.ApplicationProtocol.HTTP,
@@ -105,7 +106,10 @@ export class BatfishEcsStack extends cdk.Stack {
         [{
             targetGroup: targetGroup9996,
             weight: 1
-          },]
+        },],
+        {
+      stickinessDuration: stickinessDuration,
+    }
       )
     });
     // Associate the container tasks with the custom target groups
