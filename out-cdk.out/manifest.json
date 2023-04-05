@@ -1,0 +1,328 @@
+{
+  "version": "31.0.0",
+  "artifacts": {
+    "BatfishEcsStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "BatfishEcsStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "BatfishEcsStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "BatfishEcsStack.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/1d292c578c22cdf51bd7586d7f788745ba4825089db7f3cee552c94ac2b34b0b.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "BatfishEcsStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "BatfishEcsStack.assets"
+      ],
+      "metadata": {
+        "/BatfishEcsStack/BatfishVpc/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpc8352D509"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet1/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet1SubnetBC03F470"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet1/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet1RouteTable2D887E53"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet1/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet1RouteTableAssociation3C6357DD"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet1/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet1DefaultRoute2C936550"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet1/EIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet1EIP1DF67367"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet1/NATGateway": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet1NATGateway5255999F"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet2/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet2SubnetA76D1470"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet2/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet2RouteTable6BC0EA80"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet2/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet2RouteTableAssociation8F0C7278"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet2/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet2DefaultRouteE00A3955"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet2/EIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet2EIPD30F98B6"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PublicSubnet2/NATGateway": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPublicSubnet2NATGateway640EB903"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PrivateSubnet1/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPrivateSubnet1SubnetD2B50A11"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PrivateSubnet1/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPrivateSubnet1RouteTableAB45431D"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PrivateSubnet1/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPrivateSubnet1RouteTableAssociation5B5AF253"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PrivateSubnet1/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPrivateSubnet1DefaultRoute438E29A2"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PrivateSubnet2/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPrivateSubnet2Subnet949B67A3"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PrivateSubnet2/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPrivateSubnet2RouteTableBA424459"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PrivateSubnet2/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPrivateSubnet2RouteTableAssociationD70AFF57"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/PrivateSubnet2/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcPrivateSubnet2DefaultRoute2A5785BF"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/IGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcIGWF4394177"
+          }
+        ],
+        "/BatfishEcsStack/BatfishVpc/VPCGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishVpcVPCGWCAF5275D"
+          }
+        ],
+        "/BatfishEcsStack/BatfishCluster/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishCluster36B4B2E6"
+          }
+        ],
+        "/BatfishEcsStack/BatfishTaskDefinition/TaskRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishTaskDefinitionTaskRole75EE4427"
+          }
+        ],
+        "/BatfishEcsStack/BatfishTaskDefinition/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishTaskDefinitionD2B44F83"
+          }
+        ],
+        "/BatfishEcsStack/BatfishTaskDefinition/BatfishContainer/LogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishTaskDefinitionBatfishContainerLogGroup8C6BE6AA"
+          }
+        ],
+        "/BatfishEcsStack/BatfishTaskDefinition/ExecutionRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishTaskDefinitionExecutionRoleE2D84FFA"
+          }
+        ],
+        "/BatfishEcsStack/BatfishTaskDefinition/ExecutionRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishTaskDefinitionExecutionRoleDefaultPolicy3928CEB6"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/LB/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceLBDBF7A6FD"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/LB/SecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceLBSecurityGroup08F0B9E8"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/LB/SecurityGroup/to BatfishEcsStackBatfishFargateServiceSecurityGroup256CE048:9997": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceLBSecurityGrouptoBatfishEcsStackBatfishFargateServiceSecurityGroup256CE0489997765724D3"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/LB/PublicListener/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceLBPublicListener96404A1D"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/LB/PublicListener/ECSGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceLBPublicListenerECSGroup82E2D543"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/LB/Listener9996/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceLBListener999697465A0B"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/LB/Listener9997/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceLBListener9997091B70FC"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/LoadBalancerDNS": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceLoadBalancerDNSEEA73CA4"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/ServiceURL": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceServiceURL4E4C8C99"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/Service/Service": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateService392CF96C"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/Service/SecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceSecurityGroup444B8E67"
+          }
+        ],
+        "/BatfishEcsStack/BatfishFargateService/Service/SecurityGroup/from BatfishEcsStackBatfishFargateServiceLBSecurityGroupAC6641EC:9997": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BatfishFargateServiceSecurityGroupfromBatfishEcsStackBatfishFargateServiceLBSecurityGroupAC6641EC99971B3A3600"
+          }
+        ],
+        "/BatfishEcsStack/TargetGroup9997/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TargetGroup9997028F6728"
+          }
+        ],
+        "/BatfishEcsStack/TargetGroup9996/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TargetGroup99961C05C9FC"
+          }
+        ],
+        "/BatfishEcsStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/BatfishEcsStack/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/BatfishEcsStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/BatfishEcsStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "BatfishEcsStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}

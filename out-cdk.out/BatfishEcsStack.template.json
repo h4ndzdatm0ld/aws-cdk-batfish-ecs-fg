@@ -1,0 +1,1237 @@
+{
+ "Resources": {
+  "BatfishVpc8352D509": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/Resource"
+   }
+  },
+  "BatfishVpcPublicSubnet1SubnetBC03F470": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    },
+    "AvailabilityZone": {
+     "Fn::Select": [
+      0,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.0.0/18",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet1/Subnet"
+   }
+  },
+  "BatfishVpcPublicSubnet1RouteTable2D887E53": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet1/RouteTable"
+   }
+  },
+  "BatfishVpcPublicSubnet1RouteTableAssociation3C6357DD": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "BatfishVpcPublicSubnet1RouteTable2D887E53"
+    },
+    "SubnetId": {
+     "Ref": "BatfishVpcPublicSubnet1SubnetBC03F470"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet1/RouteTableAssociation"
+   }
+  },
+  "BatfishVpcPublicSubnet1DefaultRoute2C936550": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "BatfishVpcPublicSubnet1RouteTable2D887E53"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "BatfishVpcIGWF4394177"
+    }
+   },
+   "DependsOn": [
+    "BatfishVpcVPCGWCAF5275D"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet1/DefaultRoute"
+   }
+  },
+  "BatfishVpcPublicSubnet1EIP1DF67367": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet1/EIP"
+   }
+  },
+  "BatfishVpcPublicSubnet1NATGateway5255999F": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "SubnetId": {
+     "Ref": "BatfishVpcPublicSubnet1SubnetBC03F470"
+    },
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "BatfishVpcPublicSubnet1EIP1DF67367",
+      "AllocationId"
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "DependsOn": [
+    "BatfishVpcPublicSubnet1DefaultRoute2C936550",
+    "BatfishVpcPublicSubnet1RouteTableAssociation3C6357DD"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet1/NATGateway"
+   }
+  },
+  "BatfishVpcPublicSubnet2SubnetA76D1470": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    },
+    "AvailabilityZone": {
+     "Fn::Select": [
+      1,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.64.0/18",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PublicSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet2/Subnet"
+   }
+  },
+  "BatfishVpcPublicSubnet2RouteTable6BC0EA80": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PublicSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet2/RouteTable"
+   }
+  },
+  "BatfishVpcPublicSubnet2RouteTableAssociation8F0C7278": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "BatfishVpcPublicSubnet2RouteTable6BC0EA80"
+    },
+    "SubnetId": {
+     "Ref": "BatfishVpcPublicSubnet2SubnetA76D1470"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet2/RouteTableAssociation"
+   }
+  },
+  "BatfishVpcPublicSubnet2DefaultRouteE00A3955": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "BatfishVpcPublicSubnet2RouteTable6BC0EA80"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "BatfishVpcIGWF4394177"
+    }
+   },
+   "DependsOn": [
+    "BatfishVpcVPCGWCAF5275D"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet2/DefaultRoute"
+   }
+  },
+  "BatfishVpcPublicSubnet2EIPD30F98B6": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PublicSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet2/EIP"
+   }
+  },
+  "BatfishVpcPublicSubnet2NATGateway640EB903": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "SubnetId": {
+     "Ref": "BatfishVpcPublicSubnet2SubnetA76D1470"
+    },
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "BatfishVpcPublicSubnet2EIPD30F98B6",
+      "AllocationId"
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PublicSubnet2"
+     }
+    ]
+   },
+   "DependsOn": [
+    "BatfishVpcPublicSubnet2DefaultRouteE00A3955",
+    "BatfishVpcPublicSubnet2RouteTableAssociation8F0C7278"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PublicSubnet2/NATGateway"
+   }
+  },
+  "BatfishVpcPrivateSubnet1SubnetD2B50A11": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    },
+    "AvailabilityZone": {
+     "Fn::Select": [
+      0,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.128.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PrivateSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PrivateSubnet1/Subnet"
+   }
+  },
+  "BatfishVpcPrivateSubnet1RouteTableAB45431D": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PrivateSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PrivateSubnet1/RouteTable"
+   }
+  },
+  "BatfishVpcPrivateSubnet1RouteTableAssociation5B5AF253": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "BatfishVpcPrivateSubnet1RouteTableAB45431D"
+    },
+    "SubnetId": {
+     "Ref": "BatfishVpcPrivateSubnet1SubnetD2B50A11"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PrivateSubnet1/RouteTableAssociation"
+   }
+  },
+  "BatfishVpcPrivateSubnet1DefaultRoute438E29A2": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "BatfishVpcPrivateSubnet1RouteTableAB45431D"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "BatfishVpcPublicSubnet1NATGateway5255999F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PrivateSubnet1/DefaultRoute"
+   }
+  },
+  "BatfishVpcPrivateSubnet2Subnet949B67A3": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    },
+    "AvailabilityZone": {
+     "Fn::Select": [
+      1,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.192.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PrivateSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PrivateSubnet2/Subnet"
+   }
+  },
+  "BatfishVpcPrivateSubnet2RouteTableBA424459": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc/PrivateSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PrivateSubnet2/RouteTable"
+   }
+  },
+  "BatfishVpcPrivateSubnet2RouteTableAssociationD70AFF57": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "BatfishVpcPrivateSubnet2RouteTableBA424459"
+    },
+    "SubnetId": {
+     "Ref": "BatfishVpcPrivateSubnet2Subnet949B67A3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PrivateSubnet2/RouteTableAssociation"
+   }
+  },
+  "BatfishVpcPrivateSubnet2DefaultRoute2A5785BF": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "BatfishVpcPrivateSubnet2RouteTableBA424459"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "BatfishVpcPublicSubnet2NATGateway640EB903"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/PrivateSubnet2/DefaultRoute"
+   }
+  },
+  "BatfishVpcIGWF4394177": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "BatfishEcsStack/BatfishVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/IGW"
+   }
+  },
+  "BatfishVpcVPCGWCAF5275D": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    },
+    "InternetGatewayId": {
+     "Ref": "BatfishVpcIGWF4394177"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishVpc/VPCGW"
+   }
+  },
+  "BatfishCluster36B4B2E6": {
+   "Type": "AWS::ECS::Cluster",
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishCluster/Resource"
+   }
+  },
+  "BatfishTaskDefinitionTaskRole75EE4427": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishTaskDefinition/TaskRole/Resource"
+   }
+  },
+  "BatfishTaskDefinitionD2B44F83": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Cpu": 1024,
+      "Environment": [
+       {
+        "Name": "BASH_ENV",
+        "Value": "/etc/profile"
+       }
+      ],
+      "Essential": true,
+      "Image": "batfish/batfish",
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "BatfishTaskDefinitionBatfishContainerLogGroup8C6BE6AA"
+        },
+        "awslogs-stream-prefix": "Batfish",
+        "awslogs-region": {
+         "Ref": "AWS::Region"
+        }
+       }
+      },
+      "Memory": 2048,
+      "Name": "BatfishContainer",
+      "PortMappings": [
+       {
+        "ContainerPort": 9997,
+        "Protocol": "tcp"
+       },
+       {
+        "ContainerPort": 9996,
+        "Protocol": "tcp"
+       }
+      ]
+     }
+    ],
+    "Cpu": "2048",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "BatfishTaskDefinitionExecutionRoleE2D84FFA",
+      "Arn"
+     ]
+    },
+    "Family": "BatfishEcsStackBatfishTaskDefinitionA27073ED",
+    "Memory": "4096",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "BatfishTaskDefinitionTaskRole75EE4427",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishTaskDefinition/Resource"
+   }
+  },
+  "BatfishTaskDefinitionBatfishContainerLogGroup8C6BE6AA": {
+   "Type": "AWS::Logs::LogGroup",
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishTaskDefinition/BatfishContainer/LogGroup/Resource"
+   }
+  },
+  "BatfishTaskDefinitionExecutionRoleE2D84FFA": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishTaskDefinition/ExecutionRole/Resource"
+   }
+  },
+  "BatfishTaskDefinitionExecutionRoleDefaultPolicy3928CEB6": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "BatfishTaskDefinitionBatfishContainerLogGroup8C6BE6AA",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "BatfishTaskDefinitionExecutionRoleDefaultPolicy3928CEB6",
+    "Roles": [
+     {
+      "Ref": "BatfishTaskDefinitionExecutionRoleE2D84FFA"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishTaskDefinition/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "BatfishFargateServiceLBDBF7A6FD": {
+   "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+   "Properties": {
+    "LoadBalancerAttributes": [
+     {
+      "Key": "deletion_protection.enabled",
+      "Value": "false"
+     }
+    ],
+    "Scheme": "internet-facing",
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "BatfishFargateServiceLBSecurityGroup08F0B9E8",
+       "GroupId"
+      ]
+     }
+    ],
+    "Subnets": [
+     {
+      "Ref": "BatfishVpcPublicSubnet1SubnetBC03F470"
+     },
+     {
+      "Ref": "BatfishVpcPublicSubnet2SubnetA76D1470"
+     }
+    ],
+    "Type": "application"
+   },
+   "DependsOn": [
+    "BatfishVpcPublicSubnet1DefaultRoute2C936550",
+    "BatfishVpcPublicSubnet1RouteTableAssociation3C6357DD",
+    "BatfishVpcPublicSubnet2DefaultRouteE00A3955",
+    "BatfishVpcPublicSubnet2RouteTableAssociation8F0C7278"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/LB/Resource"
+   }
+  },
+  "BatfishFargateServiceLBSecurityGroup08F0B9E8": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Automatically created Security Group for ELB BatfishEcsStackBatfishFargateServiceLB3B054F5D",
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 80",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     },
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 9996",
+      "FromPort": 9996,
+      "IpProtocol": "tcp",
+      "ToPort": 9996
+     },
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 9997",
+      "FromPort": 9997,
+      "IpProtocol": "tcp",
+      "ToPort": 9997
+     }
+    ],
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/LB/SecurityGroup/Resource"
+   }
+  },
+  "BatfishFargateServiceLBSecurityGrouptoBatfishEcsStackBatfishFargateServiceSecurityGroup256CE0489997765724D3": {
+   "Type": "AWS::EC2::SecurityGroupEgress",
+   "Properties": {
+    "GroupId": {
+     "Fn::GetAtt": [
+      "BatfishFargateServiceLBSecurityGroup08F0B9E8",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "Description": "Load balancer to target",
+    "DestinationSecurityGroupId": {
+     "Fn::GetAtt": [
+      "BatfishFargateServiceSecurityGroup444B8E67",
+      "GroupId"
+     ]
+    },
+    "FromPort": 9997,
+    "ToPort": 9997
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/LB/SecurityGroup/to BatfishEcsStackBatfishFargateServiceSecurityGroup256CE048:9997"
+   }
+  },
+  "BatfishFargateServiceLBPublicListener96404A1D": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "BatfishFargateServiceLBPublicListenerECSGroup82E2D543"
+      },
+      "Type": "forward"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "BatfishFargateServiceLBDBF7A6FD"
+    },
+    "Port": 80,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/LB/PublicListener/Resource"
+   }
+  },
+  "BatfishFargateServiceLBPublicListenerECSGroup82E2D543": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckPath": "/ping",
+    "Port": 80,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/LB/PublicListener/ECSGroup/Resource"
+   }
+  },
+  "BatfishFargateServiceLBListener999697465A0B": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "ForwardConfig": {
+       "TargetGroupStickinessConfig": {
+        "DurationSeconds": 60,
+        "Enabled": true
+       },
+       "TargetGroups": [
+        {
+         "TargetGroupArn": {
+          "Ref": "TargetGroup99961C05C9FC"
+         },
+         "Weight": 1
+        }
+       ]
+      },
+      "Type": "forward"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "BatfishFargateServiceLBDBF7A6FD"
+    },
+    "Port": 9996,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/LB/Listener9996/Resource"
+   }
+  },
+  "BatfishFargateServiceLBListener9997091B70FC": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "ForwardConfig": {
+       "TargetGroupStickinessConfig": {
+        "DurationSeconds": 60,
+        "Enabled": true
+       },
+       "TargetGroups": [
+        {
+         "TargetGroupArn": {
+          "Ref": "TargetGroup9997028F6728"
+         },
+         "Weight": 1
+        }
+       ]
+      },
+      "Type": "forward"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "BatfishFargateServiceLBDBF7A6FD"
+    },
+    "Port": 9997,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/LB/Listener9997/Resource"
+   }
+  },
+  "BatfishFargateService392CF96C": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "BatfishCluster36B4B2E6"
+    },
+    "DeploymentConfiguration": {
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "EnableECSManagedTags": false,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "BatfishContainer",
+      "ContainerPort": 9997,
+      "TargetGroupArn": {
+       "Ref": "BatfishFargateServiceLBPublicListenerECSGroup82E2D543"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::GetAtt": [
+         "BatfishFargateServiceSecurityGroup444B8E67",
+         "GroupId"
+        ]
+       }
+      ],
+      "Subnets": [
+       {
+        "Ref": "BatfishVpcPrivateSubnet1SubnetD2B50A11"
+       },
+       {
+        "Ref": "BatfishVpcPrivateSubnet2Subnet949B67A3"
+       }
+      ]
+     }
+    },
+    "TaskDefinition": {
+     "Ref": "BatfishTaskDefinitionD2B44F83"
+    }
+   },
+   "DependsOn": [
+    "BatfishFargateServiceLBPublicListenerECSGroup82E2D543",
+    "BatfishFargateServiceLBPublicListener96404A1D"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/Service/Service"
+   }
+  },
+  "BatfishFargateServiceSecurityGroup444B8E67": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "BatfishEcsStack/BatfishFargateService/Service/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/Service/SecurityGroup/Resource"
+   }
+  },
+  "BatfishFargateServiceSecurityGroupfromBatfishEcsStackBatfishFargateServiceLBSecurityGroupAC6641EC99971B3A3600": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "IpProtocol": "tcp",
+    "Description": "Load balancer to target",
+    "FromPort": 9997,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "BatfishFargateServiceSecurityGroup444B8E67",
+      "GroupId"
+     ]
+    },
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "BatfishFargateServiceLBSecurityGroup08F0B9E8",
+      "GroupId"
+     ]
+    },
+    "ToPort": 9997
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/BatfishFargateService/Service/SecurityGroup/from BatfishEcsStackBatfishFargateServiceLBSecurityGroupAC6641EC:9997"
+   }
+  },
+  "TargetGroup9997028F6728": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckPath": "/ping",
+    "Port": 9997,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "true"
+     },
+     {
+      "Key": "stickiness.type",
+      "Value": "lb_cookie"
+     },
+     {
+      "Key": "stickiness.lb_cookie.duration_seconds",
+      "Value": "60"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/TargetGroup9997/Resource"
+   }
+  },
+  "TargetGroup99961C05C9FC": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckPath": "/ping",
+    "Port": 9996,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "true"
+     },
+     {
+      "Key": "stickiness.type",
+      "Value": "lb_cookie"
+     },
+     {
+      "Key": "stickiness.lb_cookie.duration_seconds",
+      "Value": "60"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "BatfishVpc8352D509"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/TargetGroup9996/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/31Sy27CMBD8Fu7GBS5tj5RShITaKEFckeMs6UKwIz+CUJR/r2MTEtGqpx1PZr2z48zo84RORuyixzw7jQtMaZ0Yxk/EUfsa+IzWu5KTxUHsogWJbFogT2wqwLRcj2JpDWxZWkDP99xca8mRGZTiLm7Bch215ZOZFTNwYVcSKawc7C9eCwPK4U4QnNxOc+O8fp9BGJIAtwrNdaWkLb2Hf4llrkDrX/RaeL4hwDWtF4XVbnqr6uAHUzlrt9KndzigwG6nR0YKw1CAGnC33gRUhTzkFGBDkJ1pHcuQnq+RdEn7dQNqSCFz52kj8/tGHfZ29yUzbVSazsvSdfi0N5Jlb6xggkP2MB4Kpg3ywilSr0CRV+65/+5WYd7gPNShy0bcNB0efN+6ye4FO9uDY9OQGLS0KuTxZU1pw/80YF2WmU+wIUJmQI/6qZq+0hc6HR014lhZYfAMNA71ByDmDJzUAgAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "BatfishEcsStack/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Outputs": {
+  "BatfishFargateServiceLoadBalancerDNSEEA73CA4": {
+   "Value": {
+    "Fn::GetAtt": [
+     "BatfishFargateServiceLBDBF7A6FD",
+     "DNSName"
+    ]
+   }
+  },
+  "BatfishFargateServiceServiceURL4E4C8C99": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "http://",
+      {
+       "Fn::GetAtt": [
+        "BatfishFargateServiceLBDBF7A6FD",
+        "DNSName"
+       ]
+      }
+     ]
+    ]
+   }
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-2"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

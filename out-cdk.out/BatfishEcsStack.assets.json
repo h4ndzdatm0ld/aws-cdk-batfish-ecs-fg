@@ -1,0 +1,19 @@
+{
+  "version": "31.0.0",
+  "files": {
+    "1d292c578c22cdf51bd7586d7f788745ba4825089db7f3cee552c94ac2b34b0b": {
+      "source": {
+        "path": "BatfishEcsStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-current_region": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
+          "objectKey": "1d292c578c22cdf51bd7586d7f788745ba4825089db7f3cee552c94ac2b34b0b.json",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
