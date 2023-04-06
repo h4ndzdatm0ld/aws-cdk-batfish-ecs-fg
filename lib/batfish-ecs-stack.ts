@@ -65,7 +65,7 @@ export class BatfishEcsStack extends cdk.Stack {
     const fargateService = new ecs.FargateService(this, 'BatfishFargateService', {
       cluster: cluster,
       taskDefinition: taskDefinition,
-      desiredCount: 1,
+      desiredCount: 3,
       assignPublicIp: false,
       vpcSubnets: vpc,
       securityGroups: [fargateServiceSecurityGroup],
