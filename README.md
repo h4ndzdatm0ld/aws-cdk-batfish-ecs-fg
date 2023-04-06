@@ -1,6 +1,6 @@
 # Welcome to your CDK TypeScript project
 
-This is a blank project for CDK development with TypeScript.
+Batfish Network Analysis container running in ECS Cluster with Fargate behind a Load Balancer.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 

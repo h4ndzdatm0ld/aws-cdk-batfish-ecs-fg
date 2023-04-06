@@ -90,7 +90,7 @@ export class BatfishEcsStack extends cdk.Stack {
       healthCheck: {
         path: '/',
         port: "8888",
-        interval: cdk.Duration.seconds(10),
+        interval: cdk.Duration.seconds(30),
         timeout: cdk.Duration.seconds(5),
         healthyHttpCodes: "200,302"
       }
