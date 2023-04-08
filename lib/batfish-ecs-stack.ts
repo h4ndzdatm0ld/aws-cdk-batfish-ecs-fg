@@ -43,24 +43,18 @@ export class BatfishEcsStack extends cdk.Stack {
         timeout: cdk.Duration.seconds(10)
       }
     });
-
-    // Add necessary ports
-    container.addPortMappings({
-      containerPort: 9996
-    }, {containerPort: 8888});
-    
     // Fargate Security Group
     const fargateServiceSecurityGroup = new ec2.SecurityGroup(this, 'FargateServiceSecurityGroup', {
       vpc: vpc,
     });
 
-    // Add an ingress rule to allow traffic on port 8888/9996
-    fargateServiceSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(8888));
-    fargateServiceSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(8888));
-    fargateServiceSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(9996));
-    fargateServiceSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(9996));
-
-
+    // Add an ingress rule to allow traffic on port 8888/9996 | Container Port Mappings
+    const portNumbers = [8888, 9996];
+    for (const portNumber of portNumbers) {
+      container.addPortMappings({ containerPort: portNumber });
+      fargateServiceSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(portNumber));
+      fargateServiceSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(portNumber));
+    }
     // Create a Fargate service
     const fargateService = new ecs.FargateService(this, 'BatfishFargateService', {
       cluster: cluster,
