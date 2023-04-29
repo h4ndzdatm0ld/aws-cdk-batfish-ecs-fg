@@ -1,17 +1,16 @@
 import * as cdk from 'aws-cdk-lib';
-import {Construct} from 'constructs';
+import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-
-
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class BatfishEcsStack extends cdk.Stack {
-  constructor(scope : Construct, id : string, props? : cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // Create a VPC
-    const vpc = new ec2.Vpc(this, 'BatfishVpc', {maxAzs: 3});
+    const vpc = new ec2.Vpc(this, 'BatfishVpc', { maxAzs: 3 });
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, 'BatfishCluster', {
       vpc: vpc,
@@ -21,14 +20,46 @@ export class BatfishEcsStack extends cdk.Stack {
     // Create Task Definition with Fargate compatibility
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'BatfishTaskDefinition', {
       memoryLimitMiB: 8192,
-      cpu: 4096
+      cpu: 4096,
+      family: 'ecs-exec-task', // Set the family property
+      executionRole: new iam.Role(this, 'ExecutionRole', {
+        assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+        managedPolicies: [
+          iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'),
+        ],
+      }),
+      taskRole: new iam.Role(this, 'TaskRole', {
+        assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      }),
+    });
+
+    // Add the required IAM policy to the task role to grant access to the necessary SSM actions
+    const ssmPolicy = new iam.PolicyStatement({
+      actions: [
+        'ssm:DescribeSessions',
+        'ssm:GetConnectionStatus',
+        'ssm:GetDocument',
+        'ssm:StartSession',
+        'ssm:TerminateSession',
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ],
+      resources: ['*'],
+    });
+
+    // Attach the policy statement to the task role
+    new iam.Policy(this, 'SSMPolicy', {
+      statements: [ssmPolicy],
+      roles: [taskDefinition.taskRole],
     });
 
     // Add container to the task definition
     const container = taskDefinition.addContainer('BatfishContainer', {
       image: ecs.ContainerImage.fromRegistry('batfish/allinone:latest'),
       logging: ecs.LogDrivers.awsLogs(
-        {streamPrefix: 'Batfish'}
+        { streamPrefix: 'Batfish' }
       ),
       memoryLimitMiB: 4096,
       cpu: 2048,
@@ -48,18 +79,12 @@ export class BatfishEcsStack extends cdk.Stack {
       vpc: vpc,
     });
 
-    // Add an ingress rule to allow traffic on port 8888/9996 | Container Port Mappings
-    const portNumbers = [8888, 9996];
-    for (const portNumber of portNumbers) {
-      container.addPortMappings({ containerPort: portNumber });
-      fargateServiceSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(portNumber));
-      fargateServiceSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(portNumber));
-    }
+
     // Create a Fargate service
     const fargateService = new ecs.FargateService(this, 'BatfishFargateService', {
       cluster: cluster,
       taskDefinition: taskDefinition,
-      desiredCount: 3,
+      desiredCount: 1,
       assignPublicIp: false,
       vpcSubnets: vpc,
       securityGroups: [fargateServiceSecurityGroup],
@@ -70,10 +95,17 @@ export class BatfishEcsStack extends cdk.Stack {
       vpc: vpc,
       internetFacing: true
     });
-
-    const extraIngressPort = 8888;
-    loadBalancer.connections.allowFromAnyIpv4(ec2.Port.tcp(extraIngressPort), 'Allow ingress traffic on port ' + extraIngressPort);
-    loadBalancer.connections.allowToAnyIpv4(ec2.Port.tcp(extraIngressPort), 'Allow ingress traffic on port ' + extraIngressPort);
+    // Add an ingress rule to allow traffic on port 8888/9996 | Container Port Mappings
+    const portNumbers = [9996, 8888];
+    const portMappings = [];
+    for (const portNumber of portNumbers) {
+      portMappings.push({ containerPort: portNumber });
+      fargateServiceSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(portNumber));
+      fargateServiceSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(portNumber));
+      loadBalancer.connections.allowFromAnyIpv4(ec2.Port.tcp(portNumber), 'Allow ingress traffic on port ' + portNumber);
+      loadBalancer.connections.allowToAnyIpv4(ec2.Port.tcp(portNumber), 'Allow ingress traffic on port ' + portNumber);
+    }
+    container.addPortMappings(...portMappings);
 
     const targetGroup9996 = new elbv2.ApplicationTargetGroup(this, 'TargetGroup9996', {
       targetType: elbv2.TargetType.IP,
@@ -98,15 +130,39 @@ export class BatfishEcsStack extends cdk.Stack {
       protocol: elbv2.ApplicationProtocol.HTTP,
       defaultAction: elbv2.ListenerAction.weightedForward(
         [{
-            targetGroup: targetGroup9996,
-            weight: 1
+          targetGroup: targetGroup9996,
+          weight: 1
         },],
         {
-      stickinessDuration: stickinessDuration,
-    }
+          stickinessDuration: stickinessDuration,
+        }
       )
     });
     // Associate the container tasks with the custom target groups
     fargateService.attachToApplicationTargetGroup(targetGroup9996);
+
+    // Create a new EC2 Service
+    const amazonLinuxAmi = new ec2.AmazonLinuxImage({
+      generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2
+    });
+
+    const instanceRole = new iam.Role(this, 'InstanceRole', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
+      ],
+    });
+
+    const instanceSecurityGroup = new ec2.SecurityGroup(this, 'InstanceSecurityGroup', {
+      vpc: vpc
+    });
+
+    const ec2Instance = new ec2.Instance(this, 'AmazonLinuxInstance', {
+      vpc: vpc,
+      instanceType: new ec2.InstanceType('t3.micro'),
+      machineImage: amazonLinuxAmi,
+      role: instanceRole,
+      securityGroup: instanceSecurityGroup,
+    });
   }
 }
