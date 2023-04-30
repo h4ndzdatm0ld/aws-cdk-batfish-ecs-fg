@@ -4,6 +4,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 
 export class BatfishEcsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -90,10 +91,10 @@ export class BatfishEcsStack extends cdk.Stack {
       securityGroups: [fargateServiceSecurityGroup],
     });
 
-    // Create a new Application Load Balancer
+    // Create a new Application Load Balancer | Non-internet facing (Access through SSM EC2)
     const loadBalancer = new elbv2.ApplicationLoadBalancer(this, 'BatfishLoadBalancer', {
       vpc: vpc,
-      internetFacing: true
+      internetFacing: false
     });
     // Add an ingress rule to allow traffic on port 8888/9996 | Container Port Mappings
     const portNumbers = [9996, 8888];
@@ -153,6 +154,24 @@ export class BatfishEcsStack extends cdk.Stack {
       ],
     });
 
+    // Create an S3 bucket for SSM logs
+    const ssmLogsBucket = new s3.Bucket(this, 'SSMLogsBucket', {
+      versioned: false,
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // Change to RETAIN if you want to keep the bucket when the stack is deleted
+    });
+
+    // Add an inline policy to the instance role for writing logs to the S3 bucket
+    instanceRole.addToPolicy(new iam.PolicyStatement({
+      actions: [
+        's3:PutObject',
+        's3:GetBucketAcl',
+      ],
+      resources: [
+        ssmLogsBucket.bucketArn,
+        `${ssmLogsBucket.bucketArn}/*`,
+      ],
+    }));
+
     const instanceSecurityGroup = new ec2.SecurityGroup(this, 'InstanceSecurityGroup', {
       vpc: vpc
     });
@@ -164,5 +183,12 @@ export class BatfishEcsStack extends cdk.Stack {
       role: instanceRole,
       securityGroup: instanceSecurityGroup,
     });
+    cdk.Tags.of(ec2Instance).add('Name', 'BatfishSSM');
+    // Allow traffic from ALB to EC2 instance on required ports
+    for (const portNumber of portNumbers) {
+      instanceSecurityGroup.addIngressRule(fargateServiceSecurityGroup, ec2.Port.tcp(portNumber));
+      instanceSecurityGroup.addEgressRule(fargateServiceSecurityGroup, ec2.Port.tcp(portNumber));
+    }
+
   }
 }
