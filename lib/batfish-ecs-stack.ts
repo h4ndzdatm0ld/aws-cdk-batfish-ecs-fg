@@ -5,13 +5,18 @@ import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import { aws_ssm as ssm } from 'aws-cdk-lib';
 
 export class BatfishEcsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // Create a VPC
-    const vpc = new ec2.Vpc(this, 'BatfishVpc', { maxAzs: 3 });
+    const vpc = new ec2.Vpc(this, 'BatfishVpc', {
+      maxAzs: 3,
+    });
+
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, 'BatfishCluster', {
       vpc: vpc,
@@ -80,7 +85,6 @@ export class BatfishEcsStack extends cdk.Stack {
       vpc: vpc,
     });
 
-
     // Create a Fargate service
     const fargateService = new ecs.FargateService(this, 'BatfishFargateService', {
       cluster: cluster,
@@ -93,9 +97,12 @@ export class BatfishEcsStack extends cdk.Stack {
 
     // Create a new Application Load Balancer | Non-internet facing (Access through SSM EC2)
     const loadBalancer = new elbv2.ApplicationLoadBalancer(this, 'BatfishLoadBalancer', {
+      loadBalancerName: 'BatfishLoadBalancer',
       vpc: vpc,
       internetFacing: false
     });
+    cdk.Tags.of(loadBalancer).add('Name', 'BatfishLoadBalancer');
+
     // Add an ingress rule to allow traffic on port 8888/9996 | Container Port Mappings
     const portNumbers = [9996, 8888];
     const portMappings = [];
@@ -154,6 +161,11 @@ export class BatfishEcsStack extends cdk.Stack {
       ],
     });
 
+    // Create a CloudWatch Log Group
+    const sessionManagerLogGroup = new logs.LogGroup(this, 'SessionManagerLogGroup', {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     // Create an S3 bucket for SSM logs
     const ssmLogsBucket = new s3.Bucket(this, 'SSMLogsBucket', {
       versioned: false,
@@ -165,10 +177,13 @@ export class BatfishEcsStack extends cdk.Stack {
       actions: [
         's3:PutObject',
         's3:GetBucketAcl',
+        'logs:CreateLogStream',
+        'logs:PutLogEvents',
       ],
       resources: [
         ssmLogsBucket.bucketArn,
         `${ssmLogsBucket.bucketArn}/*`,
+        sessionManagerLogGroup.logGroupArn,
       ],
     }));
 
@@ -189,6 +204,5 @@ export class BatfishEcsStack extends cdk.Stack {
       instanceSecurityGroup.addIngressRule(fargateServiceSecurityGroup, ec2.Port.tcp(portNumber));
       instanceSecurityGroup.addEgressRule(fargateServiceSecurityGroup, ec2.Port.tcp(portNumber));
     }
-
   }
 }

@@ -18,6 +18,13 @@ INSTANCE_ID=$(aws ec2 describe-instances \
                --output text)
 ```
 
+```bash
+PRIVATE_LB_DNS=$(aws alb describe-instances \
+               --filter "Name=tag:Name,Values=BatfishLoadBalancer" \
+               --query "Reservations[].Instances[?State.Name == 'running'].InstanceId[]" \
+               --output text)
+```
+
 -> Start StartPortForwardingSessionToRemoteHost through our EC2 Instance to remote ALB on port 9996
 
 ```bash
