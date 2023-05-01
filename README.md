@@ -4,6 +4,14 @@ Batfish Network Analysis container running in ECS Cluster with Fargate behind a 
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
+## Starting Port Forwarding Session to ELB
+
+An example bash script is provided to dynamically grab the instance-id of the EC2 used to tunnel through to the ELB. The ELB is also grabbed dynamically with the AWS CLI toolkit. 
+
+```bash
+./ssh-session.sh
+```
+
 ## Resources
 
 - [SSM Intro](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html)
