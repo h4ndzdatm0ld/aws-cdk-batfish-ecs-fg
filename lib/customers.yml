@@ -1,0 +1,3 @@
+---
+- name: DevKnot
+  arn: arn:aws:iam::379654070973:root

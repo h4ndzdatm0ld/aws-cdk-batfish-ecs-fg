@@ -9,13 +9,28 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import { aws_ssm as ssm } from 'aws-cdk-lib';
 
 export class BatfishEcsStack extends cdk.Stack {
+  public readonly vpc: ec2.Vpc
+  public readonly loadBalancer: elbv2.ApplicationLoadBalancer
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // Create a VPC
     const vpc = new ec2.Vpc(this, 'BatfishVpc', {
       maxAzs: 3,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'BatfishPrivateWithEgress',
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        },
+        {
+          cidrMask: 24,
+          name: 'BatfishPublic',
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+      ]
     });
+    this.vpc = vpc;
 
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, 'BatfishCluster', {
@@ -25,8 +40,8 @@ export class BatfishEcsStack extends cdk.Stack {
 
     // Create Task Definition with Fargate compatibility
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'BatfishTaskDefinition', {
-      memoryLimitMiB: 8192,
-      cpu: 4096,
+      memoryLimitMiB: 4096,
+      cpu: 2048,
       family: 'ecs-exec-task', // Set the family property
       executionRole: new iam.Role(this, 'ExecutionRole', {
         assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
@@ -78,7 +93,7 @@ export class BatfishEcsStack extends cdk.Stack {
         ],
         interval: cdk.Duration.seconds(30),
         timeout: cdk.Duration.seconds(10)
-      }
+      },
     });
     // Fargate Security Group
     const fargateServiceSecurityGroup = new ec2.SecurityGroup(this, 'FargateServiceSecurityGroup', {
@@ -99,55 +114,59 @@ export class BatfishEcsStack extends cdk.Stack {
     const loadBalancer = new elbv2.ApplicationLoadBalancer(this, 'BatfishLoadBalancer', {
       loadBalancerName: 'BatfishLoadBalancer',
       vpc: vpc,
-      internetFacing: false
+      internetFacing: true
     });
     cdk.Tags.of(loadBalancer).add('Name', 'BatfishLoadBalancer');
+    this.loadBalancer = loadBalancer;
 
     // Add an ingress rule to allow traffic on port 8888/9996 | Container Port Mappings
     const portNumbers = [9996, 8888];
-    const portMappings = [];
-    for (const portNumber of portNumbers) {
-      portMappings.push({ containerPort: portNumber });
-      fargateServiceSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(portNumber));
-      fargateServiceSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(portNumber));
-      loadBalancer.connections.allowFromAnyIpv4(ec2.Port.tcp(portNumber), 'Allow ingress traffic on port ' + portNumber);
-      loadBalancer.connections.allowToAnyIpv4(ec2.Port.tcp(portNumber), 'Allow ingress traffic on port ' + portNumber);
-    }
+    // Create container port mappings
+    const portMappings = portNumbers.map((portNumber) => ({ containerPort: portNumber }));
+    // Add port mappings to the container
     container.addPortMappings(...portMappings);
 
-    const targetGroup9996 = new elbv2.ApplicationTargetGroup(this, 'TargetGroup9996', {
-      targetType: elbv2.TargetType.IP,
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      port: 9996,
-      vpc: vpc,
-      stickinessCookieDuration: cdk.Duration.seconds(120),
-      healthCheck: {
-        path: '/',
-        port: "8888",
-        interval: cdk.Duration.seconds(30),
-        timeout: cdk.Duration.seconds(5),
-        healthyHttpCodes: "200,302"
-      }
-    });
+    // Create the target groups and associate with listeners
+    const targetGroups: elbv2.ApplicationTargetGroup[] = [];
 
-    // Group Level Stickiness
-    const stickinessDuration = cdk.Duration.seconds(120);
+    for (const portNumber of portNumbers) {
+      // Create a separate target group for each port
+      const targetGroup = new elbv2.ApplicationTargetGroup(this, `TargetGroup${portNumber}`, {
+        targetGroupName: `ALB-TargetGroup-${portNumber}`,
+        targetType: elbv2.TargetType.IP,
+        protocol: elbv2.ApplicationProtocol.HTTP,
+        port: portNumber,
+        vpc: vpc,
+        targets: [fargateService.loadBalancerTarget({
+          containerName: 'BatfishContainer',
+          containerPort: portNumber
+        })],
+        stickinessCookieDuration: cdk.Duration.seconds(120),
+        healthCheck: {
+          path: '/',
+          port: '8888',
+          interval: cdk.Duration.seconds(30),
+          timeout: cdk.Duration.seconds(5),
+          healthyHttpCodes: '200,302',
+        },
+      });
 
-    loadBalancer.addListener('Listener9996', {
-      port: 9996,
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      defaultAction: elbv2.ListenerAction.weightedForward(
-        [{
-          targetGroup: targetGroup9996,
-          weight: 1
-        },],
-        {
-          stickinessDuration: stickinessDuration,
-        }
-      )
-    });
-    // Associate the container tasks with the custom target groups
-    fargateService.attachToApplicationTargetGroup(targetGroup9996);
+      targetGroups.push(targetGroup);
+
+      loadBalancer.addListener(`Listener${portNumber}`, {
+        port: portNumber,
+        protocol: elbv2.ApplicationProtocol.HTTP,
+        defaultAction: elbv2.ListenerAction.weightedForward(
+          [{
+            targetGroup: targetGroup,
+            weight: 1
+          }],
+          {
+            stickinessDuration: cdk.Duration.seconds(900),
+          }
+        ),
+      });
+    }
 
     // Create a new EC2 Service
     const amazonLinuxAmi = new ec2.AmazonLinuxImage({
@@ -202,7 +221,6 @@ export class BatfishEcsStack extends cdk.Stack {
     // Allow traffic from ALB to EC2 instance on required ports
     for (const portNumber of portNumbers) {
       instanceSecurityGroup.addIngressRule(fargateServiceSecurityGroup, ec2.Port.tcp(portNumber));
-      instanceSecurityGroup.addEgressRule(fargateServiceSecurityGroup, ec2.Port.tcp(portNumber));
     }
   }
 }
